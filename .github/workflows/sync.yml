@@ -5,6 +5,9 @@ on:
     - cron: '0 8 * * *'   # 每天早上 8 点（UTC）自动同步
   workflow_dispatch:       # 允许手动触发
 
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -17,8 +20,10 @@ jobs:
 
       - name: Sync with upstream
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/cmliu/edgetunnel.git || true
           git fetch upstream
           git checkout main
-          git merge upstream/main --allow-unrelated-histories -m "chore: sync from upstream"
+          git merge upstream/main --allow-unrelated-histories -m "chore: sync from upstream" || echo "Already up to date"
           git push origin main
